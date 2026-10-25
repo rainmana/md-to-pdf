@@ -1,0 +1,49 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="240" height="190" viewBox="0 0 240 190" role="img" aria-labelledby="title desc">
+  <title id="title">The report crab</title>
+  <desc id="desc">An original cheerful orange crab in a bow tie and tiny fancy trousers proudly presents a PDF report.</desc>
+  <g stroke-linecap="round" stroke-linejoin="round">
+    <!-- A paper-colored keyline keeps the sticker readable on dark themes. -->
+    <g fill="none" stroke="#F7F5F0" stroke-width="13">
+      <path d="M57 115 29 120 14 136M57 128 38 141 28 158M72 135 64 155 51 166M151 124 183 129 203 145M148 136 174 150 182 165"/>
+      <path d="M57 100 40 91M153 108 176 107M85 86 82 65M122 84 126 61"/>
+    </g>
+    <g fill="none" stroke="#17364D" stroke-width="9">
+      <path d="M57 115 29 120 14 136M57 128 38 141 28 158M72 135 64 155 51 166M151 124 183 129 203 145M148 136 174 150 182 165"/>
+    </g>
+    <g fill="none" stroke="#D5653A" stroke-width="5">
+      <path d="M57 115 29 120 14 136M57 128 38 141 28 158M72 135 64 155 51 166M151 124 183 129 203 145M148 136 174 150 182 165"/>
+    </g>
+    <!-- The report is built from paths, including its lettering: no fonts. -->
+    <path d="M159 29H198L219 50V122Q219 128 213 128H159Q153 128 153 122V35Q153 29 159 29Z" fill="#F7F5F0" stroke="#F7F5F0" stroke-width="11"/>
+    <path d="M159 29H198L219 50V122Q219 128 213 128H159Q153 128 153 122V35Q153 29 159 29Z" fill="#F7F5F0" stroke="#17364D" stroke-width="3.5"/>
+    <path d="M198 29V50H219" fill="#D9AA47" stroke="#17364D" stroke-width="3.5"/>
+    <path d="M165 65V79M165 65H170Q175 65 175 69Q175 73 170 73H165M182 79V65H186Q192 65 192 72Q192 79 186 79H182M199 79V65H208M199 72H206" fill="none" stroke="#17364D" stroke-width="2.7"/>
+    <path d="M166 92H205M166 101H205M166 110H189" fill="none" stroke="#257F80" stroke-width="3.5"/>
+    <!-- Raised eyes, tailored trousers, and two very presentable claws. -->
+    <g fill="none" stroke="#17364D" stroke-width="9">
+      <path d="M57 100 40 91M153 108 176 107M85 86 82 65M122 84 126 61"/>
+    </g>
+    <g fill="none" stroke="#D5653A" stroke-width="5">
+      <path d="M57 100 40 91M153 108 176 107M85 86 82 65M122 84 126 61"/>
+    </g>
+    <path d="M77 132 132 134 129 163H112L106 148 100 163H81Z" fill="#17364D" stroke="#F7F5F0" stroke-width="10"/>
+    <path d="M77 132 132 134 129 163H112L106 148 100 163H81Z" fill="#17364D" stroke="#17364D" stroke-width="3.5"/>
+    <path d="M81 161H100M113 161H129" stroke="#D9AA47" stroke-width="4"/>
+    <path d="M42 90Q37 78 47 72Q40 61 32 65L29 80 20 69Q9 79 14 91Q21 108 38 101Z" fill="#D5653A" stroke="#F7F5F0" stroke-width="10"/>
+    <path d="M42 90Q37 78 47 72Q40 61 32 65L29 80 20 69Q9 79 14 91Q21 108 38 101Z" fill="#D5653A" stroke="#17364D" stroke-width="3.5"/>
+    <path d="M104 77C68 77 44 91 44 112C44 132 68 145 104 145S163 132 163 112C163 91 139 77 104 77Z" fill="#D5653A" stroke="#F7F5F0" stroke-width="10"/>
+    <path d="M104 77C68 77 44 91 44 112C44 132 68 145 104 145S163 132 163 112C163 91 139 77 104 77Z" fill="#D5653A" stroke="#17364D" stroke-width="3.5"/>
+    <path d="M61 102Q75 89 94 89" fill="none" stroke="#ED9A6E" stroke-width="4"/>
+    <circle cx="81" cy="63" r="11" fill="#F7F5F0" stroke="#F7F5F0" stroke-width="8"/>
+    <circle cx="126" cy="59" r="11" fill="#F7F5F0" stroke="#F7F5F0" stroke-width="8"/>
+    <circle cx="81" cy="63" r="11" fill="#F7F5F0" stroke="#17364D" stroke-width="3.5"/>
+    <circle cx="126" cy="59" r="11" fill="#F7F5F0" stroke="#17364D" stroke-width="3.5"/>
+    <circle cx="84" cy="63" r="4.5" fill="#17364D"/>
+    <circle cx="129" cy="59" r="4.5" fill="#17364D"/>
+    <path d="M89 110Q104 123 119 109" fill="none" stroke="#17364D" stroke-width="3.5"/>
+    <path d="M104 128 88 120V138L104 131 121 138V120Z" fill="#257F80" stroke="#17364D" stroke-width="3"/>
+    <circle cx="104" cy="129" r="4.5" fill="#D9AA47" stroke="#17364D" stroke-width="2"/>
+    <path d="M171 99Q181 94 187 101L177 111 191 111Q194 124 181 128Q166 132 160 120Q155 109 164 103" fill="#D5653A" stroke="#F7F5F0" stroke-width="9"/>
+    <path d="M171 99Q181 94 187 101L177 111 191 111Q194 124 181 128Q166 132 160 120Q155 109 164 103" fill="#D5653A" stroke="#17364D" stroke-width="3.5"/>
+  </g>
+</svg>

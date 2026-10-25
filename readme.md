@@ -1,4 +1,14 @@
+![A cheerful orange crab in a bow tie and tiny fancy trousers presents a PDF report.](assets/branding/report-crab.svg)
+
 # md-to-pdf — Rust edition
+
+**Your Markdown, dressed for the debrief.**
+
+[![Rust CI](https://img.shields.io/github/actions/workflow/status/rainmana/md-to-pdf/main.yml?branch=master&style=flat-square&logo=github&label=Rust%20CI)](https://github.com/rainmana/md-to-pdf/actions/workflows/main.yml) [![Latest release](https://img.shields.io/github/v/release/rainmana/md-to-pdf?style=flat-square&color=9D431F)](https://github.com/rainmana/md-to-pdf/releases/latest) [![Measured Rust line coverage snapshot](assets/badges/coverage.svg)](docs/COVERAGE.md) [![License: MIT](https://img.shields.io/badge/license-MIT-257F80?style=flat-square)](license)
+
+[![GitHub stars](https://img.shields.io/github/stars/rainmana/md-to-pdf?style=social)](https://github.com/rainmana/md-to-pdf/stargazers) [![Release asset downloads](https://img.shields.io/github/downloads/rainmana/md-to-pdf/total?style=flat-square&label=release%20downloads&color=257F80)](https://github.com/rainmana/md-to-pdf/releases) [![Built with Rust](https://img.shields.io/badge/built%20with-Rust-9D431F?style=flat-square&logo=rust)](Cargo.toml) [![Runtime: no Node.js](https://img.shields.io/badge/runtime-no%20Node.js-17364D?style=flat-square)](#runtime-dependencies-and-verification)
+
+**[Get a binary](#install) · [Make a report](#from-notes-to-a-report) · [Why Rust?](#why-i-rewrote-it-in-rust) · [Coverage](docs/COVERAGE.md) · [Credits](#credits-and-license)**
 
 Turn Markdown notes into PDF reports with a native command-line tool. Download
 one archive, extract it, and convert locally. **Node.js, npm, and a browser are
@@ -13,6 +23,9 @@ builds on. The original MIT copyright notice is preserved in [license](license).
 ```sh
 md-to-pdf notes.md --output report.pdf --page-numbers
 ```
+
+The stars, downloads, release, and build badges use live repository data.
+The coverage badge links to its measured snapshot, scope, and refresh instructions.
 
 ## Why I rewrote it in Rust
 
@@ -347,6 +360,15 @@ The binaries are written to `target/release/` (`.exe` on Windows).
 includes license notices, and publishes archives and checksums after a successful
 version-tag build. Manual workflow runs produce artifacts without publishing.
 
+## A little star power
+
+If this helps turn your field notes into finished reports,
+[give the report crab a star](https://github.com/rainmana/md-to-pdf).
+Tiny trousers. Modest ambitions. Very presentable paperwork.
+
+And if the original tool has helped you too,
+[show Simon's project some love](https://github.com/simonhaenisch/md-to-pdf).
+
 ## Credits and license
 
 **The original `md-to-pdf` was created by Simon Hänisch.** Thank you to Simon and
@@ -366,6 +388,9 @@ The Rust edition also depends on the work of the Typst and pulldown-cmark
 contributors, font designers, and the authors of its other Rust dependencies.
 Their notices are included in [THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md)
 and [assets/licenses](assets/licenses).
+
+The [report-crab artwork](assets/branding/report-crab.svg) is original to this
+fork and is included under the project's MIT license.
 
 The project retains its [MIT license](license), including Simon Hänisch's
 original copyright notice. Third-party components keep their respective licenses.

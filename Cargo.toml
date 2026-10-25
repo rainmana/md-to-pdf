@@ -1,0 +1,53 @@
+[package]
+name = "md-to-pdf"
+version = "6.0.0"
+edition = "2024"
+rust-version = "1.92"
+description = "Offline Markdown to PDF with an embedded Rust typesetter and fonts"
+license = "MIT"
+readme = "readme.md"
+default-run = "md-to-pdf"
+autobins = false
+
+[lib]
+name = "md_to_pdf"
+path = "src/lib.rs"
+
+[[bin]]
+name = "md-to-pdf"
+path = "src/main.rs"
+
+[[bin]]
+name = "md2pdf"
+path = "src/bin/md2pdf.rs"
+
+[dependencies]
+anyhow = "1.0"
+clap = { version = "4.5", features = ["derive"] }
+encoding_rs = "0.8"
+glob = "0.3"
+percent-encoding = "2.3"
+pulldown-cmark = { version = "0.13.5", default-features = false, features = ["html"] }
+serde = { version = "1.0", features = ["derive"] }
+serde_json = "1.0"
+serde_yaml = "0.9"
+tempfile = "3.23"
+typst = "=0.15.1"
+typst-assets = { version = "=0.15.1", features = ["fonts"] }
+typst-layout = "=0.15.1"
+typst-pdf = "=0.15.1"
+unicode-normalization = "0.1"
+
+[dev-dependencies]
+lopdf = { version = "0.46", default-features = false }
+
+[profile.dev]
+debug = 0
+
+[profile.test]
+debug = 0
+
+[profile.release]
+strip = true
+lto = "thin"
+codegen-units = 1

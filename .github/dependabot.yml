@@ -1,9 +1,14 @@
-# https://docs.github.com/github/administering-a-repository/configuration-options-for-dependency-updates
-
 version: 2
 
 updates:
-  - package-ecosystem: npm
+  - package-ecosystem: cargo
+    directory: /
+    schedule:
+      interval: weekly
+    groups:
+      rust-dependencies:
+        patterns: ['*']
+  - package-ecosystem: github-actions
     directory: /
     schedule:
       interval: weekly

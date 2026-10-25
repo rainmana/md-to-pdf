@@ -1,0 +1,184 @@
+name: Release binaries
+
+on:
+  push:
+    tags: ['v*']
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: release-${{ github.ref }}
+  cancel-in-progress: false
+
+env:
+  CARGO_TERM_COLOR: always
+  CARGO_BUILD_JOBS: '2'
+  CARGO_PROFILE_DEV_DEBUG: '0'
+  CARGO_PROFILE_TEST_DEBUG: '0'
+
+jobs:
+  build:
+    name: Build ${{ matrix.target }}
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 90
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - os: ubuntu-26.04
+            target: x86_64-unknown-linux-musl
+            extension: ''
+          - os: ubuntu-26.04-arm
+            target: aarch64-unknown-linux-musl
+            extension: ''
+          - os: macos-15-intel
+            target: x86_64-apple-darwin
+            extension: ''
+          - os: macos-15
+            target: aarch64-apple-darwin
+            extension: ''
+          - os: windows-2022
+            target: x86_64-pc-windows-msvc
+            extension: '.exe'
+    defaults:
+      run:
+        shell: bash
+    steps:
+      - name: Check out source
+        uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6.1.0
+        with:
+          persist-credentials: false
+      - name: Install native MUSL linker
+        if: runner.os == 'Linux'
+        run: |
+          sudo apt-get update
+          sudo apt-get install --no-install-recommends -y musl-tools
+      - name: Install pinned Rust toolchain
+        run: |
+          rustup show
+          rustup target add '${{ matrix.target }}'
+      - name: Cache Cargo dependencies and build outputs
+        uses: actions/cache@caa296126883cff596d87d8935842f9db880ef25 # v5.1.0
+        with:
+          path: |
+            ~/.cargo/registry/index
+            ~/.cargo/registry/cache
+            ~/.cargo/git/db
+            target
+          key: release-${{ matrix.target }}-${{ hashFiles('Cargo.lock', 'rust-toolchain.toml', '.cargo/config.toml') }}
+          restore-keys: |
+            release-${{ matrix.target }}-
+      - name: Verify tag matches the Cargo package version
+        if: startsWith(github.ref, 'refs/tags/')
+        env:
+          RELEASE_TAG: ${{ github.ref_name }}
+        run: |
+          package_version=$(cargo metadata --locked --no-deps --format-version 1 | python3 -c 'import json,sys; print(json.load(sys.stdin)["packages"][0]["version"])')
+          test "$RELEASE_TAG" = "v$package_version"
+      - name: Test native target
+        run: cargo test --locked --all-targets --target '${{ matrix.target }}'
+      - name: Build release binaries
+        run: cargo build --locked --release --bins --target '${{ matrix.target }}'
+      - name: Smoke test standalone release binaries
+        env:
+          TARGET: ${{ matrix.target }}
+          EXE_EXTENSION: ${{ matrix.extension }}
+        run: |
+          smoke_dir="$RUNNER_TEMP/md-to-pdf-release-smoke"
+          mkdir -p "$smoke_dir"
+          printf '# Standalone release\n\n**Embedded fonts** and the renderer travel with this binary.\n' > "$smoke_dir/input.md"
+          cd "$smoke_dir"
+          for binary in md-to-pdf md2pdf; do
+            binary_path="$GITHUB_WORKSPACE/target/$TARGET/release/$binary$EXE_EXTENSION"
+            "$binary_path" input.md --output "$binary.pdf"
+            test "$(head -c 5 "$binary.pdf")" = '%PDF-'
+            if [[ "$TARGET" == *-linux-musl ]]; then
+              if readelf -l "$binary_path" | grep -q 'INTERP'; then
+                echo 'The Linux release unexpectedly requires a dynamic interpreter.' >&2
+                exit 1
+              fi
+              if readelf -d "$binary_path" | grep -q '(NEEDED)'; then
+                echo 'The Linux release unexpectedly requires a shared library.' >&2
+                exit 1
+              fi
+            fi
+            if [[ "$TARGET" == *-apple-darwin ]]; then
+              unexpected_libraries=$(otool -L "$binary_path" | tail -n +2 | awk '{print $1}' | grep -Ev '^(/usr/lib/|/System/Library/)' || true)
+              if [[ -n "$unexpected_libraries" ]]; then
+                echo "The macOS release unexpectedly requires non-system libraries: $unexpected_libraries" >&2
+                exit 1
+              fi
+            fi
+          done
+      - name: Package binaries and license notices
+        env:
+          TARGET: ${{ matrix.target }}
+          EXE_EXTENSION: ${{ matrix.extension }}
+          RELEASE_NAME: ${{ github.ref_type == 'tag' && github.ref_name || 'snapshot' }}
+        run: |
+          archive_name="md-to-pdf-$RELEASE_NAME-$TARGET"
+          package_dir="$RUNNER_TEMP/$archive_name"
+          mkdir -p "$package_dir" dist
+          for binary in md-to-pdf md2pdf; do
+            cp "target/$TARGET/release/$binary$EXE_EXTENSION" "$package_dir/"
+          done
+          cp readme.md license THIRD_PARTY_NOTICES.md "$package_dir/"
+          cp -R assets/licenses "$package_dir/licenses"
+          if [[ "$TARGET" == *-windows-* ]]; then
+            export PACKAGE_DIR="$package_dir" ARCHIVE_PATH="$GITHUB_WORKSPACE/dist/$archive_name.zip"
+            python3 - <<'PY'
+          import os
+          import pathlib
+          import zipfile
+          root = pathlib.Path(os.environ['PACKAGE_DIR'])
+          with zipfile.ZipFile(os.environ['ARCHIVE_PATH'], 'w', zipfile.ZIP_DEFLATED) as archive:
+              for path in sorted(root.rglob('*')):
+                  if path.is_file():
+                      archive.write(path, str(path.relative_to(root.parent)))
+          PY
+          else
+            tar -czf "dist/$archive_name.tar.gz" -C "$RUNNER_TEMP" "$archive_name"
+          fi
+      - name: Upload release archive
+        uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6.0.0
+        with:
+          name: binary-${{ matrix.target }}
+          path: dist/*
+          if-no-files-found: error
+          compression-level: 0
+          retention-days: 14
+
+  publish:
+    name: Publish GitHub release
+    if: github.event_name == 'push' && startsWith(github.ref, 'refs/tags/')
+    needs: build
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    permissions:
+      contents: write
+    steps:
+      - name: Download release archives
+        uses: actions/download-artifact@37930b1c2abaa49bbe596cd826c3c89aef350131 # v7.0.0
+        with:
+          pattern: binary-*
+          path: dist
+          merge-multiple: true
+      - name: Create checksums and publish
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GH_REPO: ${{ github.repository }}
+          RELEASE_TAG: ${{ github.ref_name }}
+        working-directory: dist
+        run: |
+          sha256sum *.tar.gz *.zip > SHA256SUMS
+          release_options=()
+          if [[ "$RELEASE_TAG" == *-* ]]; then
+            release_options+=(--prerelease)
+          fi
+          if gh release view "$RELEASE_TAG" >/dev/null 2>&1; then
+            gh release upload "$RELEASE_TAG" ./* --clobber
+          else
+            gh release create "$RELEASE_TAG" ./* --verify-tag --generate-notes "${release_options[@]}"
+          fi

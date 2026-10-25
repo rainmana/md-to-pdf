@@ -1,0 +1,6 @@
+# Keep authored text consistent across Windows and Unix checkouts.
+* text=auto eol=lf
+
+# Preserve upstream license texts and archived source byte for byte.
+assets/licenses/** -text -whitespace
+legacy/typescript/** -text

@@ -9,3 +9,11 @@ node_modules
 /coverage
 /src/test/**/*.pdf
 /src/test/**/*.html
+
+# Rust builds and local analysis indexes
+/target/
+/.analysis/
+/.claude/
+/.coderlm/
+/tmp/
+/output/

@@ -96,15 +96,15 @@ def percent(covered, total):
 
 
 def badge(coverage):
-    label = "coverage snapshot"
+    label = "coverage"
     value = html.escape(coverage)
     title = f"{label}: {value} of instrumented Rust source lines covered"
-    return f'''<svg xmlns="http://www.w3.org/2000/svg" width="206" height="20" role="img" aria-label="{title}">
+    return f'''<svg xmlns="http://www.w3.org/2000/svg" width="148" height="20" role="img" aria-label="{title}">
   <title>{title}</title>
   <linearGradient id="shade" x2="0" y2="100%"><stop offset="0" stop-color="#bbb" stop-opacity=".1"/><stop offset="1" stop-opacity=".1"/></linearGradient>
-  <clipPath id="round"><rect width="206" height="20" rx="3"/></clipPath>
-  <g clip-path="url(#round)"><path fill="#555" d="M0 0h137v20H0z"/><path fill="#007f86" d="M137 0h69v20h-69z"/><path fill="url(#shade)" d="M0 0h206v20H0z"/></g>
-  <g fill="#fff" text-anchor="middle" font-family="Verdana,DejaVu Sans,sans-serif" font-size="11"><text x="68.5" y="14">{label}</text><text x="171.5" y="14">{value}</text></g>
+  <clipPath id="round"><rect width="148" height="20" rx="3"/></clipPath>
+  <g clip-path="url(#round)"><path fill="#555" d="M0 0h88v20H0z"/><path fill="#007f86" d="M88 0h60v20H88z"/><path fill="url(#shade)" d="M0 0h148v20H0z"/></g>
+  <g fill="#fff" text-anchor="middle" font-family="Verdana,DejaVu Sans,sans-serif" font-size="11"><text x="44" y="14">{label}</text><text x="118" y="14">{value}</text></g>
 </svg>
 '''
 
@@ -120,12 +120,12 @@ def snapshot(files, missing, args):
         ", ".join(f"`{path}`" for path in missing)
         if missing else "None."
     )
-    return f'''# Rust coverage snapshot
+    return f'''# Rust coverage report
 
 **{percent(covered, total)} line coverage — {covered:,} / {total:,} unique instrumented source lines.**
 
-This is a measured snapshot, not a live coverage service or a security guarantee.
-The README badge links to the checked-in snapshot; CI artifacts can be newer.
+This is a measured result from an instrumented test run, not a security guarantee.
+The README badge follows the latest published successful coverage run on `master`.
 
 | Measurement | Value |
 |---|---|
@@ -175,22 +175,29 @@ python3 scripts/coverage-badge.py .analysis/coverage/coverage.json \\
   --source-commit "$(git rev-parse HEAD)" --date "$(date -u +%F)" \\
   --platform "$(rustc -vV | sed -n 's/^host: //p')" \\
   --toolchain "$(rustc --version)"
-git diff -- assets/badges/coverage.svg docs/COVERAGE.md
+# Outputs: .analysis/coverage/coverage.svg and .analysis/coverage/COVERAGE.md
 ```
 
 The generator uses only Python's standard library. It takes LLVM's measured
 line records rather than counting source text or selecting successful functions.
-Review the two generated files before committing a new snapshot. Use `--offline`
+Local outputs stay in the ignored `.analysis/coverage` directory. Use `--offline`
 with `cargo llvm-cov` when all locked Cargo dependencies are already cached.
 
 ## Continuous reports
 
 The [Coverage workflow](https://github.com/rainmana/md-to-pdf/actions/workflows/coverage.yml) runs on pushes, pull
 requests, and manual dispatch. It uploads the raw LLVM JSON and LCOV, generated SVG, and
-report, and adds the report to the GitHub job summary. It has read-only repository
-permissions and does not upload to an external coverage service, publish Pages,
-or commit changes. Its latest artifacts can be newer than this checked-in badge;
-refreshing the snapshot remains an explicit reviewed documentation change.
+report, and adds the report to the GitHub job summary. Measurement has read-only
+repository permissions. After a successful push or manual run on `master`, a
+separate publisher updates only the badge, report, and run metadata on the
+`coverage-data` branch. Pull requests and other branches cannot publish.
+
+The README reads that hosted badge automatically. The
+[published report](https://github.com/rainmana/md-to-pdf/blob/coverage-data/COVERAGE.md)
+and [run metadata](https://github.com/rainmana/md-to-pdf/blob/coverage-data/metadata.json)
+identify the measured source commit and workflow run. GitHub's image/CDN caches
+can briefly delay the displayed image. Publication uses the workflow's temporary
+GitHub token, without a separate coverage-service account or personal token.
 '''
 
 
@@ -201,9 +208,9 @@ def main():
     parser.add_argument("--repo-root", type=pathlib.Path,
                         default=pathlib.Path(__file__).resolve().parents[1])
     parser.add_argument("--badge", type=pathlib.Path,
-                        default=pathlib.Path("assets/badges/coverage.svg"))
+                        default=pathlib.Path(".analysis/coverage/coverage.svg"))
     parser.add_argument("--report", type=pathlib.Path,
-                        default=pathlib.Path("docs/COVERAGE.md"))
+                        default=pathlib.Path(".analysis/coverage/COVERAGE.md"))
     parser.add_argument("--source-commit", required=True)
     parser.add_argument("--date", required=True)
     parser.add_argument("--platform", required=True)

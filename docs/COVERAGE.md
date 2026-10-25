@@ -1,48 +1,74 @@
-# Rust coverage snapshot
+# Rust coverage
 
-**89.3% line coverage — 1,182 / 1,324 unique instrumented source lines.**
+[![Hosted Rust line coverage](https://raw.githubusercontent.com/rainmana/md-to-pdf/coverage-data/coverage.svg)](https://github.com/rainmana/md-to-pdf/blob/coverage-data/COVERAGE.md)
 
-This is a measured snapshot, not a live coverage service or a security guarantee.
-The README badge links to the checked-in snapshot; CI artifacts can be newer.
+The README badge follows the **latest successfully published coverage run on
+`master`**. It is measured by GitHub Actions on Linux with the repository's
+pinned Rust toolchain. There is no manually maintained percentage in the README.
 
-| Measurement | Value |
-|---|---|
-| Source commit | [`d5744fdca7d8`](https://github.com/rainmana/md-to-pdf/commit/d5744fdca7d856a2571a8a6ec68d5af1e03a0c0d) |
-| Measured (UTC) | 2026-10-25 |
-| Platform | aarch64-apple-darwin |
-| Rust toolchain | rustc 1.96.0 (ac68faa20 2026-05-25) |
-| Coverage tool | cargo-llvm-cov 0.8.4 / LLVM LCOV per-line records |
-| Test command | `cargo llvm-cov --locked --all-targets --json` |
+- [Current measured report](https://github.com/rainmana/md-to-pdf/blob/coverage-data/COVERAGE.md)
+- [Source commit and workflow-run metadata](https://github.com/rainmana/md-to-pdf/blob/coverage-data/metadata.json)
+- [Coverage workflow and run history](https://github.com/rainmana/md-to-pdf/actions/workflows/coverage.yml)
 
-The denominator includes every instrumented Rust file under `src/`, including
-inline unit-test modules in those files. Standalone `tests/` files execute but
-are excluded from the denominator, as are dependencies, the archived TypeScript
-implementation, and generated/vendor files outside `src/`. Files that LLVM does
-not report are listed below; they do not silently count as covered. Coverage
-depends on the host platform and compiler, and is not branch coverage. Stable
-Rust doctests are not instrumented by this command. LLVM's JSON and LCOV file
-summary counts must agree. This badge counts unique `DA` line records from LLVM's
-LCOV export; LLVM's own aggregate summaries can count more lines than its explicit
-per-line records, so their aggregate percentage can differ. The raw exports are
-retained for inspection. The generator unions line records after resolving
-paths: `md2pdf` includes `main.rs`, so its separate compilation is merged with
-`md-to-pdf` instead of counting the same source lines twice. A line hit by either
-binary counts once.
+GitHub's image/CDN caches can briefly delay the displayed image. The report and
+metadata identify the source commit and workflow run that produced the published
+result. If a newer run fails, the badge keeps the last successful published
+measurement; check the workflow history for current failures.
 
-| Source file | Covered lines | Instrumented lines | Coverage |
-|---|---:|---:|---:|
-| `src/config.rs` | 189 | 202 | 93.6% |
-| `src/engine.rs` | 127 | 142 | 89.4% |
-| `src/lib.rs` | 32 | 32 | 100.0% |
-| `src/main.rs` | 246 | 331 | 74.3% |
-| `src/markdown.rs` | 588 | 617 | 95.3% |
-| **Total** | **1,182** | **1,324** | **89.3%** |
+## What is measured
 
-Source files absent from LLVM's report: `src/bin/md2pdf.rs`
+The percentage counts unique instrumented Rust source lines under `src/`,
+including inline unit-test modules. Standalone integration-test source files,
+dependencies, archived TypeScript, and generated/vendor files outside `src/` are
+excluded from the denominator. The integration tests still execute during the
+measurement. This is line coverage, not branch coverage or a security guarantee.
+Stable Rust doctests are not instrumented by this command.
 
-## Refresh locally
+`cargo-llvm-cov` exports JSON and LCOV from the same instrumented test run. The
+report generator validates their file-summary counts, then unions canonical
+per-line records. `md2pdf` includes `main.rs`; counting that shared source once
+prevents the two command names from duplicating the denominator. A line covered
+by either binary counts once. LLVM's aggregate summaries can count more lines
+than its explicit LCOV line records, so their aggregate percentage can differ.
+Files absent from LLVM's report are listed explicitly in the generated report.
 
-Use the repository's pinned Rust toolchain and install the coverage tooling:
+Coverage varies with the platform and compiler. The old local macOS measurement
+is retained in Git history; it is no longer the README's badge source.
+
+## How publication works
+
+The [workflow](../.github/workflows/coverage.yml) measures coverage on pushes,
+pull requests, and manual dispatch. Its measurement job has read-only repository
+permissions and uploads raw JSON, LCOV, the SVG badge, and a Markdown report.
+The report also appears in the GitHub job summary.
+
+After a successful push or manual run on `master`, a separate publisher gets
+`contents: write` permission. It publishes only `coverage.svg`, `COVERAGE.md`,
+and `metadata.json` to the dedicated `coverage-data` branch. Pull requests and
+other source branches cannot update that branch. Publication verifies that the
+measured commit still matches remote `master`, and an older workflow run cannot
+replace a newer result for the same commit. Updates preserve branch history and
+use ordinary Git pushes.
+
+This uses the workflow's temporary `GITHUB_TOKEN`. It needs no external coverage
+service, personal access token, GitHub Pages site, or bot commits on `master`.
+The token's generated branch pushes do not recursively start another workflow.
+
+## Refresh the hosted result
+
+A successful push to `master` refreshes the badge automatically. To remeasure
+without changing source, select **Run workflow** on the
+[Coverage workflow](https://github.com/rainmana/md-to-pdf/actions/workflows/coverage.yml)
+with `master` selected, or run:
+
+```sh
+gh workflow run coverage.yml --repo rainmana/md-to-pdf --ref master
+```
+
+## Measure locally
+
+Local measurements write only ignored files, so they cannot replace the hosted
+badge or this documentation. With the pinned toolchain selected:
 
 ```sh
 rustup component add llvm-tools-preview
@@ -57,19 +83,13 @@ python3 scripts/coverage-badge.py .analysis/coverage/coverage.json \
   --source-commit "$(git rev-parse HEAD)" --date "$(date -u +%F)" \
   --platform "$(rustc -vV | sed -n 's/^host: //p')" \
   --toolchain "$(rustc --version)"
-git diff -- assets/badges/coverage.svg docs/COVERAGE.md
 ```
 
-The generator uses only Python's standard library. It takes LLVM's measured
-line records rather than counting source text or selecting successful functions.
-Review the two generated files before committing a new snapshot. Use `--offline`
-with `cargo llvm-cov` when all locked Cargo dependencies are already cached.
+The generated `.analysis/coverage/coverage.svg` and `COVERAGE.md` record that
+measurement's platform and compiler. Use `--offline` with `cargo llvm-cov` when
+all locked Cargo dependencies are cached. The publication safeguard tests use
+local temporary Git repositories and can be run without network access:
 
-## Continuous reports
-
-The [Coverage workflow](https://github.com/rainmana/md-to-pdf/actions/workflows/coverage.yml) runs on pushes, pull
-requests, and manual dispatch. It uploads the raw LLVM JSON and LCOV, generated SVG, and
-report, and adds the report to the GitHub job summary. It has read-only repository
-permissions and does not upload to an external coverage service, publish Pages,
-or commit changes. Its latest artifacts can be newer than this checked-in badge;
-refreshing the snapshot remains an explicit reviewed documentation change.
+```sh
+python3 scripts/test-publish-coverage.py
+```

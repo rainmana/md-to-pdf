@@ -46,6 +46,8 @@ jobs:
             coverage-${{ runner.os }}-
       - name: Install pinned coverage tool
         run: cargo install cargo-llvm-cov --locked --version 0.8.4
+      - name: Test coverage publication safeguards
+        run: python3 scripts/test-publish-coverage.py
       - name: Measure Rust coverage
         run: |
           mkdir -p .analysis/coverage
@@ -73,3 +75,37 @@ jobs:
             .analysis/coverage/COVERAGE.md
           if-no-files-found: error
           retention-days: 14
+
+  publish:
+    name: Publish master coverage badge
+    needs: coverage
+    if: >-
+      needs.coverage.result == 'success' &&
+      github.ref == 'refs/heads/master' &&
+      (github.event_name == 'push' || github.event_name == 'workflow_dispatch')
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    permissions:
+      contents: write
+    steps:
+      - name: Check out trusted source
+        uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6.1.0
+        with:
+          ref: ${{ github.sha }}
+          persist-credentials: false
+      - name: Download this run's measured coverage
+        uses: actions/download-artifact@37930b1c2abaa49bbe596cd826c3c89aef350131 # v7.0.0
+        with:
+          name: rust-coverage-${{ github.sha }}
+          path: ${{ runner.temp }}/coverage-payload
+      - name: Publish badge and report to coverage-data
+        env:
+          GH_TOKEN: ${{ github.token }}
+          SOURCE_SHA: ${{ github.sha }}
+          RUN_URL: https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}/attempts/${{ github.run_attempt }}
+        run: |
+          python3 scripts/publish-coverage.py \
+            --payload "$RUNNER_TEMP/coverage-payload" \
+            --remote "https://github.com/$GITHUB_REPOSITORY.git" \
+            --source-sha "$SOURCE_SHA" \
+            --run-url "$RUN_URL"

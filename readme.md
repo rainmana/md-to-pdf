@@ -4,7 +4,7 @@
 
 **Your Markdown, dressed for the debrief.**
 
-[![Rust CI](https://img.shields.io/github/actions/workflow/status/rainmana/md-to-pdf/main.yml?branch=master&style=flat-square&logo=github&label=Rust%20CI)](https://github.com/rainmana/md-to-pdf/actions/workflows/main.yml) [![Latest release](https://img.shields.io/github/v/release/rainmana/md-to-pdf?style=flat-square&color=9D431F)](https://github.com/rainmana/md-to-pdf/releases/latest) [![Measured Rust line coverage snapshot](assets/badges/coverage.svg)](docs/COVERAGE.md) [![License: MIT](https://img.shields.io/badge/license-MIT-257F80?style=flat-square)](license)
+[![Rust CI](https://img.shields.io/github/actions/workflow/status/rainmana/md-to-pdf/main.yml?branch=master&style=flat-square&logo=github&label=Rust%20CI)](https://github.com/rainmana/md-to-pdf/actions/workflows/main.yml) [![Latest release](https://img.shields.io/github/v/release/rainmana/md-to-pdf?style=flat-square&color=9D431F)](https://github.com/rainmana/md-to-pdf/releases/latest) [![Hosted Rust line coverage](https://raw.githubusercontent.com/rainmana/md-to-pdf/coverage-data/coverage.svg)](https://github.com/rainmana/md-to-pdf/blob/coverage-data/COVERAGE.md) [![License: MIT](https://img.shields.io/badge/license-MIT-257F80?style=flat-square)](license)
 
 [![GitHub stars](https://img.shields.io/github/stars/rainmana/md-to-pdf?style=social)](https://github.com/rainmana/md-to-pdf/stargazers) [![Release asset downloads](https://img.shields.io/github/downloads/rainmana/md-to-pdf/total?style=flat-square&label=release%20downloads&color=257F80)](https://github.com/rainmana/md-to-pdf/releases) [![Built with Rust](https://img.shields.io/badge/built%20with-Rust-9D431F?style=flat-square&logo=rust)](Cargo.toml) [![Runtime: no Node.js](https://img.shields.io/badge/runtime-no%20Node.js-17364D?style=flat-square)](#runtime-dependencies-and-verification)
 
@@ -25,7 +25,8 @@ md-to-pdf notes.md --output report.pdf --page-numbers
 ```
 
 The stars, downloads, release, and build badges use live repository data.
-The coverage badge links to its measured snapshot, scope, and refresh instructions.
+The coverage badge updates automatically after successful `master` coverage runs.
+Click it for the hosted report; [coverage details](docs/COVERAGE.md) explain its scope.
 
 ## Why I rewrote it in Rust
 

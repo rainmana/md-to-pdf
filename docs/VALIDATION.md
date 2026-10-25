@@ -1,9 +1,62 @@
-# Local validation - 2026-10-23
+# Validation
+
+## Release validation - 2026-10-25
+
+The published [v6.0.0 release](https://github.com/rainmana/md-to-pdf/releases/tag/v6.0.0)
+was built from commit `0eca1048ba9b1021c00db3c96b32fc9bf06dd8aa`.
+The [tagged workflow](https://github.com/rainmana/md-to-pdf/actions/runs/40224642560)
+passed all five native targets and the publication job:
+
+- Linux x86-64 and ARM64 using MUSL.
+- macOS Intel and Apple Silicon.
+- Windows x86-64 using MSVC with a statically linked C runtime.
+
+Every target ran tests, built both executable names, and generated PDFs through
+both release binaries before packaging. Independent inspection of all five
+archives verified executable formats, documentation/license contents, and
+checksums against the published `SHA256SUMS` and GitHub asset digests. Linux
+binaries had no dynamic interpreter or shared-library dependencies. macOS
+binaries used only `/usr/lib/libiconv.2.dylib` and `/usr/lib/libSystem.B.dylib`.
+Windows binaries imported system DLLs without a separate Visual C++ runtime.
+
+### Installed release without Node or npm
+
+Both installed Apple Silicon executables were compared byte for byte with their
+payloads in the published archive, whose SHA-256 is:
+
+```text
+bf5815ba4a296084fc1c361847b426a58c114bee9bfc276328b10140b7ad28fb
+```
+
+Each executable was copied to a fresh temporary directory outside the source
+repository and run with an empty `PATH` and temporary `HOME`. A macOS sandbox
+denied network access, subprocess forks, system/user font reads, known Node/npm
+installation and cache paths, browser application paths, and Puppeteer/Playwright
+caches. Negative controls confirmed that Node/npm and font reads and subprocess
+creation were actually denied by the profile.
+
+Both binaries reported version `6.0.0` and converted the showcase Markdown and
+SVG into identical 48,896-byte, two-page PDFs. `qpdf --check` and extracted-text
+checks passed, including French accents, Greek, and Cyrillic. The PDF SHA-256 was
+`f1b52fc8000a603a8868af824163b8a5df243d6f649a16b1b3da039a47e9c129`.
+Only the two standard macOS libraries above were linked.
+
+The reproduction script and full results are retained locally in the ignored
+`.analysis/readme-verification/verify-installed-release.py` and
+`.analysis/readme-verification/installed-release-validation.json`. `qpdf` and
+`pdftotext` were validation tools run after conversion, not converter dependencies.
+Node/npm remained installed on the host; their known locations were denied to
+the converter processes. This is a bounded runtime check of the Apple Silicon
+release and showcase document, alongside hosted tests on the other platforms.
+It does not establish a comparative speed advantage or eliminate security risk.
+
+## Local validation - 2026-10-23
 
 The Rust rewrite was validated on macOS ARM64 with Rust 1.98.1. Hosted Linux,
-Windows, and Intel macOS builds have not been run from this checkout.
+Windows, and Intel macOS builds had not yet run at the time of this local check;
+the later release validation above records their successful hosted builds.
 
-## Automated checks
+### Automated checks
 
 The following commands passed:
 
@@ -41,7 +94,7 @@ Workflow YAML, shell scripts, toolchain/Cargo TOML, pinned action references, an
 tar/zip packaging paths were also checked locally. These checks do not establish
 that the five hosted target builds pass.
 
-## Standalone release check
+### Standalone release check
 
 Both optimized executables were copied into a fresh temporary directory outside
 the repository, alongside the showcase Markdown and its SVG image. Each ran with
@@ -79,7 +132,7 @@ The local test harness and full results are retained in the ignored
 Hashes identify this local build, not a guarantee of reproducible binaries across
 different operating systems or toolchains.
 
-## Document and source inspection
+### Document and source inspection
 
 The showcase was validated with `qpdf --check`, `pdfinfo`, and Poppler text
 extraction. Both pages were rendered with `pdftoppm` and visually inspected for

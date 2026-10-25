@@ -124,8 +124,8 @@ def snapshot(files, missing, args):
 
 **{percent(covered, total)} line coverage — {covered:,} / {total:,} unique instrumented source lines.**
 
-This is a checked-in snapshot, not a live coverage service or a security guarantee.
-The README badge links here so its scope and age stay visible.
+This is a measured snapshot, not a live coverage service or a security guarantee.
+The README badge links to the checked-in snapshot; CI artifacts can be newer.
 
 | Measurement | Value |
 |---|---|
@@ -185,7 +185,7 @@ with `cargo llvm-cov` when all locked Cargo dependencies are already cached.
 
 ## Continuous reports
 
-The [Coverage workflow](../.github/workflows/coverage.yml) runs on pushes, pull
+The [Coverage workflow](https://github.com/rainmana/md-to-pdf/actions/workflows/coverage.yml) runs on pushes, pull
 requests, and manual dispatch. It uploads the raw LLVM JSON and LCOV, generated SVG, and
 report, and adds the report to the GitHub job summary. It has read-only repository
 permissions and does not upload to an external coverage service, publish Pages,
